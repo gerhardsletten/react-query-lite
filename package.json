@@ -1,0 +1,165 @@
+{
+  "name": "react-query-lite",
+  "version": "0.0.1",
+  "description": "The tiny react data-loader inspired by react-query",
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "preact",
+    "data-loader",
+    "fetch",
+    "javascript"
+  ],
+  "author": "Eyvind Gerhard Sletten",
+  "files": [
+    "dist",
+    "package"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gerhardsletten/react-query-lite.git"
+  },
+  "source": "src/index.js",
+  "main": "dist/index.js",
+  "umd:main": "dist/index.umd.js",
+  "module": "dist/index.m.js",
+  "exports": {
+    "require": "./dist/index.js",
+    "default": "./dist/index.modern.js"
+  },
+  "bundlewatch": {
+    "files": [
+      {
+        "path": "./dist/index.js",
+        "maxSize": "2 kB"
+      },
+      {
+        "path": "./dist/index.modern.js",
+        "maxSize": "2 kB"
+      },
+      {
+        "path": "./dist/index.m.js",
+        "maxSize": "2 kB"
+      },
+      {
+        "path": "./dist/index.umd.js",
+        "maxSize": "2 kB"
+      }
+    ]
+  },
+  "types": "dist/index.d.ts",
+  "mangle": {
+    "regex": "^_"
+  },
+  "scripts": {
+    "build": "microbundle --jsx React.createElement",
+    "format": "prettier --write \"src/**/*.js\"",
+    "lint": "eslint src",
+    "jest": "jest",
+    "bundlewatch": "bundlewatch",
+    "test": "npm run lint && npm run jest",
+    "prepare": "npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.2"
+  },
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.16.0",
+    "@babel/polyfill": "7.12.1",
+    "@babel/preset-env": "7.16.0",
+    "@babel/preset-react": "7.16.0",
+    "@testing-library/dom": "8.11.0",
+    "@testing-library/react": "12.1.2",
+    "@testing-library/user-event": "13.5.0",
+    "babel-jest": "27.3.1",
+    "bundlewatch": "0.3.2",
+    "eslint": "8.1.0",
+    "eslint-config-google": "0.14.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-babel": "^5.3.1",
+    "eslint-plugin-jest": "25.2.2",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "7.26.1",
+    "eslint-plugin-react-hooks": "4.2.0",
+    "eslint-plugin-testing-library": "5.0.0",
+    "jest": "27.3.1",
+    "microbundle": "0.14.1",
+    "prettier": "^2.4.1",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-test-renderer": "17.0.2"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  },
+  "jest": {
+    "testEnvironment": "jsdom"
+  },
+  "eslintConfig": {
+    "parser": "@babel/eslint-parser",
+    "env": {
+      "browser": true,
+      "es2021": true,
+      "node": true
+    },
+    "settings": {
+      "react": {
+        "version": "detect"
+      }
+    },
+    "extends": [
+      "plugin:react/recommended",
+      "plugin:react/jsx-runtime",
+      "google",
+      "prettier"
+    ],
+    "parserOptions": {
+      "ecmaFeatures": {
+        "jsx": true
+      },
+      "ecmaVersion": 2020,
+      "sourceType": "module"
+    },
+    "plugins": [
+      "react",
+      "react-hooks",
+      "testing-library",
+      "jest",
+      "prettier",
+      "babel"
+    ],
+    "rules": {
+      "prettier/prettier": "warn",
+      "require-jsdoc": 0,
+      "react/prop-types": 0,
+      "prefer-const": 0,
+      "no-invalid-this": 0,
+      "babel/no-invalid-this": 1,
+      "max-len": [
+        "error",
+        {
+          "code": 80,
+          "ignoreStrings": true
+        }
+      ],
+      "no-restricted-imports": [
+        "error",
+        {
+          "paths": [
+            {
+              "name": "react",
+              "importNames": [
+                "default"
+              ],
+              "message": "React default is automatically imported by webpack."
+            }
+          ]
+        }
+      ]
+    },
+    "ignorePatterns": [
+      "dist/"
+    ]
+  }
+}
