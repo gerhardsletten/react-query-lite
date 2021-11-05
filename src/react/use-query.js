@@ -9,13 +9,13 @@ function batchCalls(callback) {
   }
 }
 
-function useQuery(key, fetcher, options) {
+function useQuery(queryKey, fetcher, options) {
   const mountedRef = useRef()
   const [, forceUpdate] = useState(0)
   const queryClient = useQueryClient()
   const [observer] = useState(() => new QueryObserver(queryClient))
 
-  const result = observer.getOptimisticResult(key, fetcher, options)
+  const result = observer.getOptimisticResult(queryKey, fetcher, options)
   useEffect(() => {
     mountedRef.current = true
     const unsubscribe = observer.subscribe(

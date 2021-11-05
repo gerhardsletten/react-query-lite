@@ -9,7 +9,7 @@ export const QueryStates = {
 
 class Query {
   constructor({
-    key,
+    queryKey,
     fetchFn,
     options = {},
     data = undefined,
@@ -17,7 +17,7 @@ class Query {
     error = undefined,
     client,
   } = {}) {
-    this.key = key
+    this.queryKey = queryKey
     this.state = data ? QueryStates.FULLFILLED : QueryStates.INITAL
     this.data = data
     this.error = error
@@ -28,6 +28,9 @@ class Query {
     this.client = client
   }
   destroy() {
+    if (this.fetchFnPending && this.fetchFnPending.cancel) {
+      this.fetchFnPending.cancel()
+    }
     this.listeners = []
     this.client.onDestroyQuery(this)
     this.client = null
@@ -51,14 +54,16 @@ class Query {
       this.notify()
     }
     try {
-      const data = await this.fetchFn()
+      this.fetchFnPending = this.fetchFn(this)
+      const data = await this.fetchFnPending
+      this.fetchFnPending = undefined
       if (!this.data || !shallowEqualObjects(this.data, data, true)) {
         this.data = data
       }
       this.state = QueryStates.FULLFILLED
       const prevFetchTime = this.fetchTime
       this.fetchTime = Math.max(now(), prevFetchTime + 1)
-      this.client.cache[this.key] = {
+      this.client.cache[this.queryKey] = {
         fetchTime: this.fetchTime,
         data: this.data,
         options: this.options,
@@ -77,7 +82,7 @@ class Query {
   subscribe(callback) {
     this.listeners.push(callback)
     return () => {
-      this.unsubscribe()
+      this.unsubscribe(callback)
     }
   }
   unsubscribe(callback) {

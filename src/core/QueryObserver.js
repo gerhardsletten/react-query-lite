@@ -11,6 +11,7 @@ class QueryObserver {
   destroy() {
     this.client = undefined
     this.listeners = []
+    this.query.unsubscribe(this.notify)
     this.query = undefined
     this.prevData = undefined
   }
@@ -67,14 +68,14 @@ class QueryObserver {
       })
     }
   }
-  getOptimisticResult(key, fetchFn, options) {
-    if (!this.query || this.query.key !== key) {
-      if (this.query && this.query.key !== key) {
+  getOptimisticResult(queryKey, fetchFn, options) {
+    if (!this.query || this.query.queryKey !== queryKey) {
+      if (this.query && this.query.queryKey !== queryKey) {
         this.prevData = this.query.data
         this.query.unsubscribe(this.notify)
       }
       this.query = this.client.getOrCreateQuery({
-        key,
+        queryKey,
         fetchFn,
         options,
         callback: this.notify,

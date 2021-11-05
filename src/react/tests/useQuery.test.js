@@ -2,6 +2,7 @@ import React from 'react'
 import { render, waitFor, act, fireEvent } from '@testing-library/react'
 
 import { sleep, queryKey } from '../../core/tests/utils'
+import { Blink } from './utils'
 import { QueryClient, QueryClientProvider, useQuery } from '../..'
 
 const payload = 'Hello world'
@@ -381,11 +382,11 @@ describe('useQuery', () => {
   test('should set status to error if queryFn throws', async () => {
     function Page() {
       const { error } = useQuery(key, () => {
-        return Promise.reject('Error test jaylen')
+        return Promise.reject(new Error('Error test jaylen'))
       })
       return (
         <div>
-          <h2>{error}</h2>
+          <h2>{error && error.message}</h2>
         </div>
       )
     }
@@ -544,28 +545,19 @@ describe('useQuery', () => {
     expect(queryFn).toHaveBeenCalledTimes(2)
     expect(memoFn).toHaveBeenCalledTimes(2)
   })
-  it.skip('should accept an empty string as query key', async () => {
+  test('should accept an empty string as query key', async () => {
     function Page() {
       const result = useQuery('', (ctx) => ctx.queryKey)
       return <>{JSON.stringify(result.data)}</>
     }
-    const rendered = renderWithClient(queryClient, <Page />)
+    const rendered = renderWithClient(client, <Page />)
     await waitFor(() => rendered.getByText(''))
   })
-
-  it.skip('should accept an object as query key', async () => {
-    function Page() {
-      const result = useQuery([{ a: 'a' }], (ctx) => ctx.queryKey)
-      return <>{JSON.stringify(result.data)}</>
-    }
-    const rendered = renderWithClient(queryClient, <Page />)
-    await waitFor(() => rendered.getByText('[{"a":"a"}]'))
-  })
-  it.skip('should cancel the query function when there are no more subscriptions', async () => {
+  test('should cancel the query function when there are no more subscriptions', async () => {
     let cancelFn = jest.fn()
     const queryFn = () => {
       const promise = new Promise((resolve, reject) => {
-        cancelFn = jest.fn(() => reject('Cancelled'))
+        cancelFn = jest.fn(() => reject(new Error('Cancelled')))
         sleep(10).then(() => resolve('OK'))
       })
       promise.cancel = cancelFn
@@ -588,42 +580,16 @@ describe('useQuery', () => {
     await waitFor(() => rendered.getByText('off'))
     expect(cancelFn).toHaveBeenCalled()
   })
-  it.skip('should only call the query hash function once each render', async () => {
-    let hashes = 0
-    let renders = 0
-    function queryKeyHashFn(x) {
-      hashes++
-      return JSON.stringify(x)
-    }
-    function Page() {
-      renders++
-      useQuery(key, () => 'test', { queryKeyHashFn })
-      return null
-    }
-    renderWithClient(client, <Page />)
-    await sleep(10)
-    expect(renders).toBe(2)
-    expect(hashes).toBe(2)
-  })
-  it.skip('should refetch when query key changed when previous status is error', async () => {
+  test('should refetch when query key changed when previous status is error', async () => {
     function Page({ id }) {
-      const { error, isLoading } = useQuery(
-        [id],
-        async () => {
-          await sleep(10)
-          if (id % 2 === 1) {
-            return Promise.reject(new Error('Error'))
-          } else {
-            return 'data'
-          }
-        },
-        {
-          retry: false,
-          retryOnMount: false,
-          refetchOnMount: false,
-          refetchOnWindowFocus: false,
+      const { error, isLoading } = useQuery(id, async () => {
+        await sleep(10)
+        if (id % 2 === 1) {
+          return Promise.reject(new Error('Error'))
+        } else {
+          return 'data'
         }
-      )
+      })
       if (isLoading) {
         return <div>status: loading</div>
       }
@@ -655,23 +621,13 @@ describe('useQuery', () => {
     fireEvent.click(rendered.getByLabelText('change'))
     await waitFor(() => rendered.getByText('error'))
   })
-  it.skip('should refetch when query key changed when switching between erroneous queries', async () => {
+  it('should refetch when query key changed when switching between erroneous queries', async () => {
     function Page({ id }) {
-      const { error, isFetching } = useQuery(
-        [id],
-        async () => {
-          await sleep(10)
-          return Promise.reject(new Error('Error'))
-        },
-        {
-          retry: false,
-          retryOnMount: false,
-          refetchOnMount: false,
-          refetchOnWindowFocus: false,
-        }
-      )
-
-      if (isFetching) {
+      const { error, isLoading } = useQuery(id, async () => {
+        await sleep(10)
+        return Promise.reject(new Error('Error'))
+      })
+      if (isLoading) {
         return <div>status: fetching</div>
       }
       if (error instanceof Error) {
@@ -679,10 +635,8 @@ describe('useQuery', () => {
       }
       return <div>rendered</div>
     }
-
     function App() {
       const [value, toggle] = React.useReducer((x) => !x, true)
-
       return (
         <div>
           <Page id={value} />
@@ -692,25 +646,18 @@ describe('useQuery', () => {
         </div>
       )
     }
-
-    const rendered = renderWithClient(queryClient, <App />)
-
+    const rendered = renderWithClient(client, <App />)
     // initial state check
     rendered.getByText('status: fetching')
-
     // render error state component
     await waitFor(() => rendered.getByText('error'))
-
     // change to mount second query
     fireEvent.click(rendered.getByLabelText('change'))
     await waitFor(() => rendered.getByText('status: fetching'))
     await waitFor(() => rendered.getByText('error'))
-
     // change to mount first query again
     fireEvent.click(rendered.getByLabelText('change'))
     await waitFor(() => rendered.getByText('status: fetching'))
     await waitFor(() => rendered.getByText('error'))
-
-    consoleMock.mockRestore()
   })
 })

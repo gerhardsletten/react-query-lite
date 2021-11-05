@@ -28,8 +28,8 @@ class QueryClient {
     this.options = { ...options, ...defaultOptions }
     this.queries = []
   }
-  getOrCreateQuery({ key, fetchFn, options, callback }) {
-    const foundQuery = this.queries.find((item) => item.key === key)
+  getOrCreateQuery({ queryKey, fetchFn, options, callback }) {
+    const foundQuery = this.queries.find((item) => item.queryKey === queryKey)
     if (foundQuery) {
       foundQuery.subscribe(callback)
       if (shouldFetchQuery(foundQuery)) {
@@ -38,12 +38,14 @@ class QueryClient {
       return foundQuery
     }
     const cacheOptions =
-      this.cache[key] && this.cache[key].options ? this.cache[key].options : {}
+      this.cache[queryKey] && this.cache[queryKey].options
+        ? this.cache[queryKey].options
+        : {}
     const query = new Query({
-      key,
+      queryKey,
       fetchFn,
-      data: this.cache[key] && this.cache[key].data,
-      fetchTime: this.cache[key] && this.cache[key].fetchTime,
+      data: this.cache[queryKey] && this.cache[queryKey].data,
+      fetchTime: this.cache[queryKey] && this.cache[queryKey].fetchTime,
       options: { ...this.options, ...cacheOptions, ...options },
       client: this,
     })
@@ -64,19 +66,19 @@ class QueryClient {
     this.cache = {}
     this.queries = []
   }
-  setQueryData(key, data) {
-    const foundQuery = this.queries.find((item) => item.key === key)
+  setQueryData(queryKey, data) {
+    const foundQuery = this.queries.find((item) => item.queryKey === queryKey)
     if (foundQuery && foundQuery.data !== data) {
       foundQuery.setData(data)
     } else {
-      if (this.cache[key]) {
-        this.cache[key].data = data
+      if (this.cache[queryKey]) {
+        this.cache[queryKey].data = data
       } else {
-        this.cache[key] = { data }
+        this.cache[queryKey] = { data }
       }
     }
   }
-  prefetchQuery(key, fetchFn, options) {
+  prefetchQuery(queryKey, fetchFn, options) {
     return new Promise((resolve, reject) => {
       const callback = (query) => {
         query.unsubscribe(callback)
@@ -87,7 +89,12 @@ class QueryClient {
           resolve(query.data)
         }
       }
-      const query = this.getOrCreateQuery({ key, fetchFn, options, callback })
+      const query = this.getOrCreateQuery({
+        queryKey,
+        fetchFn,
+        options,
+        callback,
+      })
       if (query.data) {
         query.unsubscribe(callback)
         resolve(query.data)
