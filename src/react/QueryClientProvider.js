@@ -1,10 +1,10 @@
-import { createContext, useContext } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 
-const QueryClientContext = createContext()
+const QueryClientContext = React.createContext()
 
 export function useQueryClient() {
-  const client = useContext(QueryClientContext)
+  const client = React.useContext(QueryClientContext)
   if (!client) {
     throw new Error('No QueryClient set, use QueryClientProvider to set one')
   }
