@@ -24,7 +24,7 @@ describe('QueryClientProvider', () => {
       )
     }
     const rendered = render(
-      <QueryClientProvider queryClient={client}>
+      <QueryClientProvider client={client}>
         <Page />
       </QueryClientProvider>
     )
@@ -56,7 +56,7 @@ describe('QueryClientProvider', () => {
         return null
       }
       render(
-        <QueryClientProvider queryClient={client}>
+        <QueryClientProvider client={client}>
           <Page />
         </QueryClientProvider>
       )

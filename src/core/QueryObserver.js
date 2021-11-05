@@ -1,63 +1,55 @@
 import { QueryStates } from './Query'
-
-function shallowEqualObjects(a, b) {
-  if ((a && !b) || (b && !a)) {
-    return false
-  }
-
-  for (const key in a) {
-    if (a[key] !== b[key]) {
-      return false
-    }
-  }
-
-  return true
-}
+import { shallowEqualObjects } from './utils'
 
 class QueryObserver {
   constructor(client) {
     this.client = client
     this.listeners = []
-    this.query = null
-    this.prevData = null
+    this.query = undefined
+    this.prevData = undefined
   }
   destroy() {
-    this.client = null
+    this.client = undefined
     this.listeners = []
-    this.query = null
-    this.prevData = null
+    this.query = undefined
+    this.prevData = undefined
   }
   refetch = async () => {
-    await this.query.run()
+    await this.query.run(true)
   }
   createResult() {
-    const { data, error, state, fetchTime } = this.query
+    const { data, error, state, fetchTime, options = {} } = this.query || {}
     const params = {
-      isLoading: false,
-      data: null,
-      error: null,
+      isLoading: state === QueryStates.PENDING,
+      data,
+      error: undefined,
       refetch: this.refetch,
       fetchTime,
     }
-    if (data) {
+    if (state === QueryStates.FULLFILLED) {
       if (this.prevData) {
-        this.prevData = null
+        // this.prevData = null
       }
       return {
         ...params,
         data,
+        status: 'success',
       }
     }
     if (error && state === QueryStates.FAILED) {
       return {
         ...params,
         error,
+        status: 'error',
       }
+    }
+    if (options.keepPreviousData && this.prevData !== undefined) {
+      params.data = this.prevData
     }
     return {
       ...params,
-      data: this.prevData || params.data,
       isLoading: true,
+      status: 'loading',
     }
   }
   queryHasChange() {
@@ -67,9 +59,9 @@ class QueryObserver {
     return hasChanged
   }
   notify = () => {
-    if (this.queryHasChange()) {
+    if (this.queryHasChange() && this.listeners.length) {
       this.updateResult()
-      const { data, error } = this.query
+      const { data, error } = this.query || {}
       this.listeners.forEach((callback) => {
         callback(error, data)
       })

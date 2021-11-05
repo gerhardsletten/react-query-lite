@@ -59,10 +59,10 @@ describe(`QueryClient`, () => {
     expect(data[1]).toEqual(payload)
     expect(fetchFn.mock.calls.length).toEqual(1)
   })
-  it(`Can use staleTime option`, async () => {
+  it(`Can use cacheTime option`, async () => {
     client = new QueryClient({
       defaultOptions: {
-        staleTime: 0,
+        cacheTime: 0,
       },
     })
     await client.prefetchQuery(key, () => fetchFn(payload))

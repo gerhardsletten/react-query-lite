@@ -3,7 +3,7 @@ import { now } from './utils'
 
 const options = {
   keepPreviousData: false,
-  staleTime: Infinity,
+  cacheTime: Infinity,
 }
 
 function shouldFetchQuery(query) {
@@ -11,10 +11,10 @@ function shouldFetchQuery(query) {
     return false
   }
   if (query.state === QueryStates.FULLFILLED) {
-    if (query.fetchTime && query.options.staleTime !== Infinity) {
+    if (query.fetchTime && query.options.cacheTime !== Infinity) {
       const ms = now()
-      const staleTime = query.fetchTime + query.options.staleTime
-      const isStale = ms - staleTime > -1
+      const cacheTime = query.fetchTime + query.options.cacheTime
+      const isStale = ms - cacheTime > -1
       return isStale
     }
     return false
@@ -23,8 +23,8 @@ function shouldFetchQuery(query) {
 }
 
 class QueryClient {
-  constructor({ cache = {}, defaultOptions = {} } = {}) {
-    this.cache = cache
+  constructor({ cache = undefined, defaultOptions = {} } = {}) {
+    this.cache = cache || {}
     this.options = { ...options, ...defaultOptions }
     this.queries = []
   }
@@ -37,12 +37,14 @@ class QueryClient {
       }
       return foundQuery
     }
+    const cacheOptions =
+      this.cache[key] && this.cache[key].options ? this.cache[key].options : {}
     const query = new Query({
       key,
       fetchFn,
       data: this.cache[key] && this.cache[key].data,
       fetchTime: this.cache[key] && this.cache[key].fetchTime,
-      options: { ...this.options, ...options },
+      options: { ...this.options, ...cacheOptions, ...options },
       client: this,
     })
     query.subscribe(callback)
@@ -61,6 +63,18 @@ class QueryClient {
   clear() {
     this.cache = {}
     this.queries = []
+  }
+  setQueryData(key, data) {
+    const foundQuery = this.queries.find((item) => item.key === key)
+    if (foundQuery && foundQuery.data !== data) {
+      foundQuery.setData(data)
+    } else {
+      if (this.cache[key]) {
+        this.cache[key].data = data
+      } else {
+        this.cache[key] = { data }
+      }
+    }
   }
   prefetchQuery(key, fetchFn, options) {
     return new Promise((resolve, reject) => {

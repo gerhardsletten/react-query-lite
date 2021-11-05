@@ -33,7 +33,7 @@ describe(`QueryObserver`, () => {
     const observer = new QueryObserver(client)
     let data = observer.getOptimisticResult(key, () => fetchFn())
     expect(data.isLoading).toEqual(true)
-    expect(data.data).toEqual(null)
+    expect(data.data).toEqual(undefined)
     await subscribe(observer)
     data = observer.getOptimisticResult(key, () => fetchFn())
     expect(data.isLoading).toEqual(false)
@@ -65,7 +65,7 @@ describe(`QueryObserver`, () => {
     })
     let data = observer.getOptimisticResult(key, () => fetchFnCustom())
     expect(data.isLoading).toEqual(true)
-    expect(data.error).toEqual(null)
+    expect(data.error).toEqual(undefined)
     await subscribe(observer)
     data = observer.getOptimisticResult(key, () => fetchFnCustom())
     expect(data.isLoading).toEqual(false)
@@ -90,12 +90,12 @@ describe(`QueryObserver`, () => {
     data.refetch()
     data = observer.getOptimisticResult(key, () => fetchFnCustom())
     expect(data.isLoading).toEqual(true)
-    expect(data.error).toEqual(null)
-    expect(data.data).toEqual(null)
+    expect(data.error).toEqual(undefined)
+    expect(data.data).toEqual(undefined)
     await subscribe(observer)
     data = observer.getOptimisticResult(key, () => fetchFnCustom())
     expect(data.isLoading).toEqual(false)
-    expect(data.error).toEqual(null)
+    expect(data.error).toEqual(undefined)
     expect(data.data).toEqual(payload)
   })
   it(`Will clean up on unsubscribe`, async () => {
@@ -103,8 +103,8 @@ describe(`QueryObserver`, () => {
     observer.getOptimisticResult(key, () => fetchFn())
     const unSubscribe = await subscribe(observer)
     unSubscribe()
-    expect(observer.query).toEqual(null)
-    expect(observer.client).toEqual(null)
+    expect(observer.query).toEqual(undefined)
+    expect(observer.client).toEqual(undefined)
     expect(observer.listeners).toEqual([])
   })
   it(`Should not notify if nothing has changed`, async () => {
@@ -138,10 +138,10 @@ describe(`QueryObserver`, () => {
     expect(data.data).toEqual(payload)
     expect(fetchFn.mock.calls.length).toEqual(1)
   })
-  it(`Can use staleTime option with refetch`, async () => {
+  it(`Can use cacheTime option with refetch`, async () => {
     client = new QueryClient({
       defaultOptions: {
-        staleTime: 0,
+        cacheTime: 0,
       },
     })
     const observer = new QueryObserver(client)
@@ -150,14 +150,15 @@ describe(`QueryObserver`, () => {
     const unSubscribe = observer.subscribe(callback)
     await refetch()
     await refetch()
-    expect(callback.mock.calls.length).toEqual(3)
+    // 2 x loading, 2 x success
+    expect(callback.mock.calls.length).toEqual(4)
     expect(fetchFn.mock.calls.length).toEqual(3)
     unSubscribe()
   })
-  it(`Can use staleTime option with multiple observers`, async () => {
+  it(`Can use cacheTime option with multiple observers`, async () => {
     client = new QueryClient({
       defaultOptions: {
-        staleTime: 0,
+        cacheTime: 0,
       },
     })
     const observer = new QueryObserver(client)
@@ -168,10 +169,10 @@ describe(`QueryObserver`, () => {
     await subscribe(observer2)
     expect(fetchFn.mock.calls.length).toEqual(2)
   })
-  it(`Can use higher staleTime option with multiple observers`, async () => {
+  it(`Can use higher cacheTime option with multiple observers`, async () => {
     client = new QueryClient({
       defaultOptions: {
-        staleTime: 1000,
+        cacheTime: 1000,
       },
     })
     const observer = new QueryObserver(client)
@@ -206,7 +207,7 @@ describe(`QueryObserver`, () => {
   it(`Can use option keepPreviousData with refresh`, async () => {
     client = new QueryClient({
       defaultOptions: {
-        staleTime: 0,
+        cacheTime: 0,
         keepPreviousData: false,
       },
     })
@@ -218,20 +219,20 @@ describe(`QueryObserver`, () => {
     result.refetch()
     result = observer.getOptimisticResult(key, () => fetchFn())
     expect(result.isLoading).toEqual(true)
-    expect(result.data).toEqual(null)
+    // expect(result.data).toEqual(undefined)
     await subscribe(observer)
     result = observer.getOptimisticResult(key, () => fetchFn())
     expect(result.data).toEqual(payload)
   })
   it(`Can pass options to getOptimisticResult`, async () => {
     const options = {
-      staleTime: 0,
+      cacheTime: 0,
       keepPreviousData: false,
     }
     const observer = new QueryObserver(client)
     observer.getOptimisticResult(key, () => fetchFn(), options)
     await subscribe(observer)
-    expect(observer.query.options.staleTime).toEqual(options.staleTime)
+    expect(observer.query.options.cacheTime).toEqual(options.cacheTime)
     expect(observer.query.options.keepPreviousData).toEqual(
       options.keepPreviousData
     )

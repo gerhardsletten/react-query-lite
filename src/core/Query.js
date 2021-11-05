@@ -1,4 +1,4 @@
-import { now } from './utils'
+import { now, shallowEqualObjects } from './utils'
 
 export const QueryStates = {
   INITAL: 'INITAL',
@@ -12,9 +12,9 @@ class Query {
     key,
     fetchFn,
     options = {},
-    data = null,
+    data = undefined,
     fetchTime = null,
-    error = null,
+    error = undefined,
     client,
   } = {}) {
     this.key = key
@@ -34,25 +34,42 @@ class Query {
     this.fetchFn = null
     this.options = null
   }
-  async run() {
+  setData(data) {
+    if (data !== this.data) {
+      this.data = data
+      this.fetchTime = now()
+      this.notify()
+    }
+  }
+  async run(refetch) {
     this.state = QueryStates.PENDING
     if (!this.options.keepPreviousData) {
-      this.data = null
+      // this.data = undefined
     }
-    this.error = null
+    this.error = undefined
+    if (refetch) {
+      this.notify()
+    }
     try {
-      this.data = await this.fetchFn()
+      const data = await this.fetchFn()
+      if (!this.data || !shallowEqualObjects(this.data, data, true)) {
+        this.data = data
+      }
       this.state = QueryStates.FULLFILLED
       const prevFetchTime = this.fetchTime
-      this.fetchTime = Math.max(new Date().getTime(), prevFetchTime + 1)
+      this.fetchTime = Math.max(now(), prevFetchTime + 1)
       this.client.cache[this.key] = {
         fetchTime: this.fetchTime,
         data: this.data,
+        options: this.options,
       }
     } catch (error) {
       this.error = error
       this.state = QueryStates.FAILED
     }
+    this.notify()
+  }
+  notify() {
     this.listeners.forEach((callback) => {
       callback(this)
     })

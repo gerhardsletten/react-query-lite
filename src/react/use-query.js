@@ -15,7 +15,7 @@ function useQuery(key, fetcher, options) {
   const queryClient = useQueryClient()
   const [observer] = useState(() => new QueryObserver(queryClient))
 
-  let result = observer.getOptimisticResult(key, fetcher, options)
+  const result = observer.getOptimisticResult(key, fetcher, options)
   useEffect(() => {
     mountedRef.current = true
     const unsubscribe = observer.subscribe(
@@ -25,12 +25,11 @@ function useQuery(key, fetcher, options) {
         }
       })
     )
-    // observer.updateResult()
     return () => {
       mountedRef.current = false
       unsubscribe()
     }
-  }, [observer])
+  }, [observer, forceUpdate])
   return result
 }
 

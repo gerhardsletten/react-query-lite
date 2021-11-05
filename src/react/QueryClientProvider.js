@@ -1,21 +1,27 @@
 import { createContext, useContext } from 'react'
+import PropTypes from 'prop-types'
 
 const QueryClientContext = createContext()
 
 export function useQueryClient() {
-  const queryClient = useContext(QueryClientContext)
-  if (!queryClient) {
+  const client = useContext(QueryClientContext)
+  if (!client) {
     throw new Error('No QueryClient set, use QueryClientProvider to set one')
   }
-  return queryClient
+  return client
 }
 
-export const QueryClientProvider = ({ children, queryClient }) => {
+export const QueryClientProvider = ({ children, client }) => {
   return (
-    <QueryClientContext.Provider value={queryClient}>
+    <QueryClientContext.Provider value={client}>
       {children}
     </QueryClientContext.Provider>
   )
+}
+
+QueryClientProvider.propTypes = {
+  children: PropTypes.node,
+  client: PropTypes.object,
 }
 
 export default QueryClientProvider
