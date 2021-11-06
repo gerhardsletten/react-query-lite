@@ -9,11 +9,9 @@ class QueryObserver {
     this.prevData = undefined
   }
   destroy() {
-    this.client = undefined
     this.listeners = []
     this.query.unsubscribe(this.notify)
     this.query = undefined
-    this.prevData = undefined
   }
   refetch = async () => {
     await this.query.run(true)
