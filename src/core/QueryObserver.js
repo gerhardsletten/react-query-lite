@@ -1,12 +1,10 @@
 import { QueryStates } from './Query'
-import { shallowEqualObjects } from './utils'
+import { shallowEqualObjects, invariant } from './utils'
 
 class QueryObserver {
   constructor(client) {
     this.client = client
     this.listeners = []
-    this.query = undefined
-    this.prevData = undefined
   }
   destroy() {
     this.listeners = []
@@ -72,14 +70,20 @@ class QueryObserver {
         this.prevData = this.query.data
         this.query.unsubscribe(this.notify)
       }
-      this.query = this.client.getOrCreateQuery({
-        queryKey,
-        fetchFn,
-        options,
-        callback: this.notify,
-      })
+      this.queryKey = queryKey
+      this.fetchFn = fetchFn
+      this.options = options
+      this.createQuery()
     }
     return this.updateResult()
+  }
+  createQuery() {
+    this.query = this.client.getOrCreateQuery({
+      queryKey: this.queryKey,
+      fetchFn: this.fetchFn,
+      options: this.options,
+      callback: this.notify,
+    })
   }
   updateResult() {
     const results = this.createResult()
@@ -88,6 +92,13 @@ class QueryObserver {
   }
   subscribe(callback) {
     this.listeners.push(callback)
+    if (!this.query) {
+      invariant(
+        this.queryKey && this.fetchFn,
+        'Please run getOptimisticResult before subscribe'
+      )
+      this.createQuery()
+    }
     if (this.queryHasChange()) {
       this.notify()
     }

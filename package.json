@@ -60,6 +60,12 @@
     "test": "npm run lint && npm run jest",
     "prepare": "npm run build"
   },
+  "sideEffects": [
+    "dist/index.js",
+    "dist/index.m.js",
+    "dist/index.modern.js",
+    "dist/index.umd.js"
+  ],
   "peerDependencies": {
     "react": ">=17.0.2",
     "prop-types": ">=14.0.0"
@@ -136,14 +142,7 @@
       "require-jsdoc": 0,
       "no-invalid-this": 0,
       "babel/no-invalid-this": 1,
-      "react/prop-types": 0,
-      "max-len": [
-        "error",
-        {
-          "code": 80,
-          "ignoreStrings": true
-        }
-      ]
+      "react/prop-types": 0
     },
     "ignorePatterns": [
       "dist/"

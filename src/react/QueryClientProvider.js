@@ -1,13 +1,12 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { invariant } from '../core/utils'
 
 const QueryClientContext = React.createContext()
 
 export function useQueryClient() {
   const client = React.useContext(QueryClientContext)
-  if (!client) {
-    throw new Error('No QueryClient set, use QueryClientProvider to set one')
-  }
+  invariant(client, 'No QueryClient set, use QueryClientProvider to set one')
   return client
 }
 

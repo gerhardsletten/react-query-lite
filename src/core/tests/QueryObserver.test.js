@@ -21,7 +21,7 @@ describe(`QueryObserver`, () => {
     client = new QueryClient()
     key = queryKey()
     fetchFn = jest.fn(async (str) => {
-      await sleep(100)
+      await sleep(10)
       return str || payload
     })
   })
@@ -104,7 +104,6 @@ describe(`QueryObserver`, () => {
     const unSubscribe = await subscribe(observer)
     unSubscribe()
     expect(observer.query).toEqual(undefined)
-    expect(observer.client).toEqual(undefined)
     expect(observer.listeners).toEqual([])
   })
   it(`Should not notify if nothing has changed`, async () => {
@@ -118,7 +117,7 @@ describe(`QueryObserver`, () => {
     expect(callback.mock.calls.length).toEqual(1)
     unSubscribe()
   })
-  it(`Refresh should trigger an updatde`, async () => {
+  it(`Refresh should trigger an update`, async () => {
     const observer = new QueryObserver(client)
     const { refetch } = observer.getOptimisticResult(key, () => fetchFn())
     const callback = jest.fn()
@@ -126,6 +125,31 @@ describe(`QueryObserver`, () => {
     await refetch()
     expect(callback.mock.calls.length).toEqual(2)
     unSubscribe()
+  })
+  it(`subscribe callback should not be called for a second subscribe after unsubscribe`, async () => {
+    const observer = new QueryObserver(client)
+    observer.getOptimisticResult(key, () => fetchFn())
+    const callback = jest.fn()
+    const unSubscribe = observer.subscribe(callback)
+    await sleep(20)
+    let data = observer.getOptimisticResult(key, () => fetchFn())
+    expect(data).toMatchObject({
+      data: payload,
+      isLoading: false,
+      error: undefined,
+    })
+    unSubscribe()
+    const callback2 = jest.fn()
+    const unSubscribe2 = observer.subscribe(callback2)
+    await sleep(20)
+    data = observer.getOptimisticResult(key, () => fetchFn())
+    expect(data).toMatchObject({
+      data: payload,
+      isLoading: false,
+      error: undefined,
+    })
+    expect(callback2.mock.calls.length).toEqual(0)
+    unSubscribe2()
   })
   it(`Multiple observer result in one fetch`, async () => {
     const observer = new QueryObserver(client)
@@ -183,6 +207,17 @@ describe(`QueryObserver`, () => {
     await sleep(200)
     expect(fetchFn.mock.calls.length).toEqual(1)
   })
+  test('should throw an error if subscribe is called before getOptimisticResult', async () => {
+    const consoleMock = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined)
+    const observer = new QueryObserver(client)
+    const callback = jest.fn()
+    expect(() => {
+      observer.subscribe(callback)
+    }).toThrow('Please run getOptimisticResult before subscribe')
+    consoleMock.mockRestore()
+  })
   it(`Can use option keepPreviousData`, async () => {
     client = new QueryClient({
       defaultOptions: {
@@ -219,7 +254,7 @@ describe(`QueryObserver`, () => {
     result.refetch()
     result = observer.getOptimisticResult(key, () => fetchFn())
     expect(result.isLoading).toEqual(true)
-    // expect(result.data).toEqual(undefined)
+    expect(result.data).toEqual(payload)
     await subscribe(observer)
     result = observer.getOptimisticResult(key, () => fetchFn())
     expect(result.data).toEqual(payload)

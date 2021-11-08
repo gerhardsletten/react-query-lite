@@ -14,3 +14,11 @@ export function shallowEqualObjects(a, b, debug) {
   }
   return true
 }
+
+export function invariant(condition, message) {
+  if (process.env.NODE_ENV !== 'production') {
+    if (!condition) {
+      throw new Error(message)
+    }
+  }
+}
