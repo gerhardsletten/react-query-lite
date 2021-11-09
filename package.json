@@ -142,8 +142,20 @@
       "require-jsdoc": 0,
       "no-invalid-this": 0,
       "babel/no-invalid-this": 1,
-      "react/prop-types": 0
+      "react/prop-types": 1
     },
+    "overrides": [
+      {
+        "files": [
+          "*.test.js",
+          "*.spec.js",
+          "utils.js"
+        ],
+        "rules": {
+          "react/prop-types": 0
+        }
+      }
+    ],
     "ignorePatterns": [
       "dist/"
     ]

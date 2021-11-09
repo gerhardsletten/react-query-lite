@@ -46,9 +46,6 @@ class Query {
   }
   async run(refetch) {
     this.state = QueryStates.PENDING
-    if (!this.options.keepPreviousData) {
-      // this.data = undefined
-    }
     this.error = undefined
     if (refetch) {
       this.notify()
