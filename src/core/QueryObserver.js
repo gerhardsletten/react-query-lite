@@ -1,5 +1,6 @@
 import { QueryStates } from './Query'
 import { shallowEqualObjects, invariant } from './utils'
+import { notifyManager } from './notifyManager'
 
 class QueryObserver {
   constructor(client) {
@@ -59,8 +60,10 @@ class QueryObserver {
     if (this.queryHasChange() && this.listeners.length) {
       this.updateResult()
       const { data, error } = this.query || {}
-      this.listeners.forEach((callback) => {
-        callback(error, data)
+      notifyManager.batch(() => {
+        this.listeners.forEach((callback) => {
+          callback(error, data)
+        })
       })
     }
   }

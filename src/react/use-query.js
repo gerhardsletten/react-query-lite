@@ -2,12 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { useQueryClient } from './QueryClientProvider'
 import QueryObserver from '../core/QueryObserver'
-
-function batchCalls(callback) {
-  return (...args) => {
-    callback(...args)
-  }
-}
+import { notifyManager } from '../core/notifyManager'
 
 function useQuery(queryKey, fetcher, options) {
   const mountedRef = useRef()
@@ -19,7 +14,7 @@ function useQuery(queryKey, fetcher, options) {
   useEffect(() => {
     mountedRef.current = true
     const unsubscribe = observer.subscribe(
-      batchCalls(() => {
+      notifyManager.batchCalls(() => {
         if (mountedRef.current) {
           forceUpdate((x) => x + 1)
         }

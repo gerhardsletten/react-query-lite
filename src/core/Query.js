@@ -1,4 +1,5 @@
 import { now, shallowEqualObjects } from './utils'
+import { notifyManager } from './notifyManager'
 
 export const QueryStates = {
   INITAL: 'INITAL',
@@ -72,8 +73,10 @@ class Query {
     this.notify()
   }
   notify() {
-    this.listeners.forEach((callback) => {
-      callback(this)
+    notifyManager.batch(() => {
+      this.listeners.forEach((callback) => {
+        callback(this)
+      })
     })
   }
   subscribe(callback) {

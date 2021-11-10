@@ -53,6 +53,7 @@
   },
   "scripts": {
     "build": "microbundle --jsx React.createElement",
+    "build-debug": "microbundle --jsx React.createElement --compress false",
     "format": "prettier --write \"src/**/*.js\"",
     "lint": "eslint src",
     "jest": "jest",
@@ -68,6 +69,7 @@
   ],
   "peerDependencies": {
     "react": ">=17.0.2",
+    "react-dom": ">=17.0.2",
     "prop-types": ">=14.0.0"
   },
   "devDependencies": {
