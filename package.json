@@ -13,7 +13,8 @@
   "author": "Eyvind Gerhard Sletten",
   "files": [
     "dist",
-    "package"
+    "package",
+    "index.d.ts"
   ],
   "repository": {
     "type": "git",
@@ -47,18 +48,19 @@
       }
     ]
   },
-  "types": "dist/index.d.ts",
+  "types": "index.d.ts",
   "mangle": {
     "regex": "^_"
   },
   "scripts": {
-    "build": "microbundle --jsx React.createElement",
+    "build": "del-cli dist && microbundle --jsx React.createElement --no-generateTypes",
     "build-debug": "microbundle --jsx React.createElement --compress false",
     "format": "prettier --write \"src/**/*.js\"",
     "lint": "eslint src",
+    "tsd": "tsd",
     "jest": "jest",
     "bundlewatch": "bundlewatch",
-    "test": "npm run lint && npm run jest",
+    "test": "npm run lint && npm run jest && npm run tsd",
     "prepare": "npm run build"
   },
   "sideEffects": [
@@ -80,8 +82,10 @@
     "@testing-library/dom": "8.11.0",
     "@testing-library/react": "12.1.2",
     "@testing-library/user-event": "13.5.0",
+    "@types/react": "^17.0.34",
     "babel-jest": "27.3.1",
     "bundlewatch": "0.3.2",
+    "del-cli": "^4.0.1",
     "eslint": "8.1.0",
     "eslint-config-google": "0.14.0",
     "eslint-config-prettier": "^8.3.0",
@@ -97,7 +101,8 @@
     "prop-types": "^15.7.2",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "react-test-renderer": "17.0.2"
+    "react-test-renderer": "17.0.2",
+    "tsd": "^0.18.0"
   },
   "prettier": {
     "semi": false,
