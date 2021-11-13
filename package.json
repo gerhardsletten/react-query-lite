@@ -1,6 +1,6 @@
 {
   "name": "react-query-lite",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "The tiny react data-loader inspired by react-query",
   "license": "MIT",
   "keywords": [
