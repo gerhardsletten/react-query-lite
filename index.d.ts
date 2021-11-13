@@ -206,7 +206,7 @@ export interface UseQueryReturnValue {
   readonly fetchTime: number;
 }
 /**
-  Provider to wrap your App with
+  Hook used to fetch queries
   @example
   import { useQuery } from 'react-query-lite'
   function Post(id) {
