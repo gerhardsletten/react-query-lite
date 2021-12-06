@@ -9,3 +9,4 @@ export {
   useQueryClient,
 } from './react/QueryClientProvider'
 export { default as useQuery } from './react/use-query'
+export { default as useMutation } from './react/use-mutation'

@@ -32,19 +32,19 @@
     "files": [
       {
         "path": "./dist/index.js",
-        "maxSize": "2 kB"
+        "maxSize": "2.5 kB"
       },
       {
         "path": "./dist/index.modern.js",
-        "maxSize": "2 kB"
+        "maxSize": "2.5 kB"
       },
       {
         "path": "./dist/index.m.js",
-        "maxSize": "2 kB"
+        "maxSize": "2.5 kB"
       },
       {
         "path": "./dist/index.umd.js",
-        "maxSize": "2 kB"
+        "maxSize": "2.5 kB"
       }
     ]
   },

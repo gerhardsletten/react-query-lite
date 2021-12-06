@@ -106,6 +106,26 @@ const {
 })
 ```
 
+### useMutation(fetchFn)
+
+Use third option parameter to pass custom options for this query:
+
+```js
+const {
+  data,
+  isLoading,
+  error,
+  mutateAsync
+} = await useMutation(async ({ username, password }) => {
+  const req = await fetch('/api/login', {
+    method: 'post',
+    body: body: JSON.stringify({ username, passord })
+  })
+  const json = await res.json()
+  return json
+})
+```
+
 ## Tradeoffs compared with `react-query`
 
-Todo..
+* queryKey as to be a string

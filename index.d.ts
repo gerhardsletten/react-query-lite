@@ -147,7 +147,7 @@ export declare class QueryClient {
     @example
     awiat client.prefetchQuery('post-1', () => fetch('/api/posts/1'))
   */
-  prefetchQuery(queryKey: QueryKey, fetchFn: QueryFn, options: QueryOptions): Promise<QueryData|QueryError>;
+  prefetchQuery(queryKey: QueryKey, fetchFn: QueryFn, options: QueryOptions): Promise<QueryData>;
 }
 
 /**
@@ -215,3 +215,58 @@ export interface UseQueryReturnValue {
   }
 */
 export function useQuery(queryKey: QueryKey, fetchFn: QueryFn, options?: QueryOptions): UseQueryReturnValue;
+
+/* Mutation */
+
+export type MutationFunction<TData = unknown, TVariables = unknown> = (
+  variables?: TVariables
+) => Promise<TData>
+
+export type useMutationReturnValue<
+TData = unknown,
+TError = unknown,
+TVariables = unknown
+> = {
+  /**
+    Is the mutation currently loading
+  */
+  readonly isLoading: boolean;
+  /**
+    Data returned from your queryFn
+  */
+  readonly data: TData;
+  /**
+    The error if queryFn throws
+  */
+  readonly error: TError;
+  /**
+    Function that calls 
+  */
+  readonly mutateAsync: MutationFunction<TData, TVariables> ;
+}
+/**
+  Hook used to perform a mutation
+  @example
+  import { useMutation } from 'react-query-lite'
+  const myMutation = async ({ username, passord }) => {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, passord })
+      })
+      const json = await res.json()
+      return json
+    })
+
+  function Post(id) {
+    const { isLoading, error, data, mutateAsync } = useQuery(`post-${id}`, () => fetchPost(id))
+    const action = async () => {
+      await mutateAsync({username: 'user', password: 'pass' })
+    }
+    // Handle loading, error and data…
+  }
+*/
+export function useMutation<
+TData = unknown,
+TError = unknown,
+TVariables = unknown
+>(mutationFn: MutationFunction<TData, TVariables>): useMutationReturnValue<TData, TError, TVariables>;

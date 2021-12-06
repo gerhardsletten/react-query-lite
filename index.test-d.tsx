@@ -1,7 +1,7 @@
 import {expectType} from 'tsd'
 import React from 'react'
 
-import { QueryClient, QueryCache, QueryClientConfig, QueryOptions, QueryData, QueryError, QueryClientProvider, useQueryClient, QueryClientProviderProps, useQuery, UseQueryReturnValue } from '.'
+import { QueryClient, QueryCache, QueryClientConfig, QueryOptions, QueryData, QueryError, QueryClientProvider, useQueryClient, QueryClientProviderProps, useQuery, UseQueryReturnValue, useMutation, useMutationReturnValue } from '.'
 
 const cache:QueryCache = {
   'key1': {
@@ -71,4 +71,29 @@ expectType<UseQueryReturnValue>(
 	useQuery('key-1', () => 'data', {
     cacheTime: 1000
   })
+)
+expectType<UseQueryReturnValue>(
+	useQuery('key-1', () => 'data', {
+    cacheTime: 1000
+  })
+)
+
+interface Post {
+  readonly title: string;
+}
+
+function mutationFn(postId?: number):Promise<Post> {
+  return Promise.resolve({
+    title: 'hello world'
+  })
+}
+
+const mutation = useMutation(mutationFn)
+
+expectType<useMutationReturnValue<Post, unknown, number>>(
+	mutation
+)
+
+expectType<Promise<Post>>(
+	mutation.mutateAsync(1)
 )
