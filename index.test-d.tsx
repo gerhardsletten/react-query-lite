@@ -1,7 +1,7 @@
 import {expectType} from 'tsd'
 import React from 'react'
 
-import { QueryClient, QueryCache, QueryClientConfig, QueryOptions, QueryData, QueryError, QueryClientProvider, useQueryClient, QueryClientProviderProps, useQuery, UseQueryReturnValue, useMutation, useMutationReturnValue } from '.'
+import { QueryClient, QueryCache, QueryClientConfig, QueryOptions, QueryClientProvider, useQueryClient, QueryClientProviderProps, useQuery, UseQueryReturnValue, useMutation, useMutationReturnValue } from '.'
 
 const cache:QueryCache = {
   'key1': {
@@ -42,8 +42,8 @@ expectType<void>(
 expectType<void>(
 	client.setQueryData('key2', 'hello')
 )
-expectType<Promise<QueryData|QueryError>>(
-	client.prefetchQuery('key2', () => 'hello', options)
+expectType<Promise<string>>(
+	client.prefetchQuery('key2', async () => 'hello', options)
 )
 
 expectType<QueryClient>(
@@ -64,16 +64,16 @@ expectType<JSX.Element>(
   </QueryClientProvider>
 )
 
-expectType<UseQueryReturnValue>(
-	useQuery('key-1', () => 'data')
+expectType<UseQueryReturnValue<string, unknown>>(
+	useQuery('key-1', async () => 'data')
 )
-expectType<UseQueryReturnValue>(
-	useQuery('key-1', () => 'data', {
+expectType<UseQueryReturnValue<string, unknown>>(
+	useQuery('key-1', async () => 'data', {
     cacheTime: 1000
   })
 )
-expectType<UseQueryReturnValue>(
-	useQuery('key-1', () => 'data', {
+expectType<UseQueryReturnValue<string, unknown>>(
+	useQuery('key-1', async () => 'data', {
     cacheTime: 1000
   })
 )

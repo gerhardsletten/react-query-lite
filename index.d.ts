@@ -19,7 +19,7 @@ export type QueryKey = string;
     return 'hello world'
   }
 */
-export type QueryFn = unknown;
+export type QueryFn<TData = unknown> = () => Promise<TData>
 /**
 	Data returned from your QueryFn
 */
@@ -62,8 +62,8 @@ export interface QueryOptions {
     }
   }
 */
-export interface QueryCacheItem {
-  readonly data: QueryData;
+export interface QueryCacheItem<TData = unknown> {
+  readonly data: TData;
   readonly cacheTime?: number;
   readonly options?: QueryOptions;
 }
@@ -141,13 +141,13 @@ export declare class QueryClient {
     @example
     client.setQueryData('post-1', {title: 'hello world'})
   */
-  setQueryData(queryKey:QueryKey, data: QueryData):void;
+  setQueryData<TData = unknown>(queryKey:QueryKey, data: TData):void;
   /**
     Manually insert a query into cache
     @example
-    awiat client.prefetchQuery('post-1', () => fetch('/api/posts/1'))
+    await client.prefetchQuery('post-1', () => fetch('/api/posts/1'))
   */
-  prefetchQuery(queryKey: QueryKey, fetchFn: QueryFn, options: QueryOptions): Promise<QueryData>;
+  prefetchQuery<TData = unknown>(queryKey: QueryKey, fetchFn: QueryFn<TData>, options?: QueryOptions): Promise<TData>;
 }
 
 /**
@@ -179,7 +179,7 @@ export interface QueryClientProviderProps {
 */
 export declare const QueryClientProvider: React.FC<QueryClientProviderProps>;
 
-export interface UseQueryReturnValue {
+export type UseQueryReturnValue<TData, TError> = {
   /**
     Is the query currently loading
   */
@@ -187,7 +187,7 @@ export interface UseQueryReturnValue {
   /**
     Data returned from your queryFn
   */
-  readonly data: QueryData;
+  readonly data: TData;
   /**
     The status for the query
   */
@@ -195,7 +195,7 @@ export interface UseQueryReturnValue {
   /**
     The error if queryFn throws
   */
-  readonly error: QueryError;
+  readonly error: TError;
   /**
     Function to force a refetch the query
   */
@@ -214,7 +214,10 @@ export interface UseQueryReturnValue {
     // Handle loading, error and data…
   }
 */
-export function useQuery(queryKey: QueryKey, fetchFn: QueryFn, options?: QueryOptions): UseQueryReturnValue;
+export function useQuery<
+TData = unknown,
+TError = unknown
+>(queryKey: QueryKey, fetchFn: QueryFn<TData>, options?: QueryOptions): UseQueryReturnValue<TData, TError>;
 
 /* Mutation */
 
